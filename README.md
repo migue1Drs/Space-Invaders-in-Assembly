@@ -19,6 +19,8 @@ This repository contains a functional clone of the classic arcade game **Space I
 The engine utilizes a **direct-to-video-memory** approach by accessing the **0A000h** segment. The current rendering logic handles sprite drawing and background clearing within the main game loop.
 
 > **Note:** This version serves as a baseline for measuring performance and identifying synchronization issues like screen flickering.
+> ### v1.0 Baseline: Direct-to-VRAM Rendering
+![Space Invaders v1.0 Demo](docs/v1_prototype.gif)
 
 ### 2. Memory Architecture
 The software is structured using **modular segments** to ensure strict separation between code, data, and stack:
