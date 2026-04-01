@@ -1,0 +1,76 @@
+ramdon macro a,b
+    push ax
+    push bx
+    push cx
+    push es
+    ;Semilla
+        mov ah,2ch
+        INT 21H  ; RETORNA CH=HORAS, EN FORMATO 00-23, MEDIANOCHE=0
+             ; CL MINUTOS 00-59
+             ;DH SEGUNDOS 00-59
+             ;DL CENTESIMAS DE SEGUNDO 00-99
+
+    ;Aleatorio
+
+            ; XN+1=(2053*XN + 13849)MOD 2**16
+        ; RETORNA EL NUMERO PSEUDOALEATORIO EN AX
+        mov ax,dx ;CARGANDO A AX EL NUMERO SEMILLA tomado de la int 21 serv             2CH
+        mov dx,0  ;CARGANDO CERO EN LA POSICION MAS SIGNIFICATIVA DEL               MULTIPLICANDO
+        mov bx,2053 ; MULTIPLICADOR
+        mul bx
+        mov bx,13849 ;CARGA EN BX LA CONSTANTE ADITIVA
+        CLC
+        add ax,bx ; SUMA PARTES MENOS SIGNIFICATIVAS DEL RESULTADO
+        adc dx,0 ; SUMA EL ACARREO SI ES NECESARIO
+        mov bx,0ffffh ; CARGAR LA CONSTANTE 2**16-1
+        div bx
+        mov ax,dx ; MUEVE EL RESIDUO  AX
+
+
+    ;Escalando
+    ; ESCALANDO EL NUMERO PSEUDOALEATORIO OBTENIDO
+   mov dx,0
+   mov bx,b ;NUMEROS ALEATORIOS ENTRE 0 Y 9
+   div bx
+   add dx,a
+     ;    Dejamos el valor aleatorio en DX
+    pop es
+    pop cx
+    pop bx
+    pop ax
+endm
+
+
+
+retardo macro parte_alta,parte_baja
+push ax
+push cx
+push dx
+        mov ah, 86h
+         mov cx, parte_alta
+         mov dx, parte_baja
+         int 15h
+pop dx
+pop cx
+pop ax
+
+
+endm
+
+calcular_posicion macro x,y
+    push ax
+    push dx
+    xor ax,ax
+    xor dx,dx
+    xor bx,bx
+    mov ax,320
+    mul y
+    add ax,x
+    mov di,ax
+    pop dx
+    pop ax
+endm
+protocolo macro   ;declaramos la macro, le damos el nombre de inicio
+  mov ax,@data   ;Cargamos el segmento de datos.
+  mov ds,ax
+ endm

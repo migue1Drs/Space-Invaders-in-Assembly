@@ -1,0 +1,126 @@
+habilitar_mouse macro 
+        mov ax,00h
+        int 33h
+endm
+
+mostrar_puntero macro
+    push ax
+        mov ax,01
+        int 33h
+    pop ax
+endm
+
+ocultar_puntero macro
+    push ax
+            mov ax,02h
+            int 33h
+    pop ax
+endm
+rastrear_mouse macro
+    push ax
+        mov ax,03h
+        int 33h; cx -> x , dx ->Y , bx -> estado de los botones
+    pop ax
+endm
+
+posicionar_puntero macro x , y
+    push ax
+    push cx
+    push dx
+
+            mov ax,04h
+            mov cx,x
+            mov dx,y
+            int 33h
+    pop dx
+    pop cx
+    pop ax
+endm
+
+rastrear_pulsaciones_boton macro boton
+    mov ax,05
+    mov bx,boton
+    int 33h
+endm
+
+fijar_limites_horizontales macro lim_inferior, lim_superior
+    push ax
+    push cx 
+    push dx
+            mov ax,07h
+            mov cx,lim_inferior
+            mov dx,lim_superior
+            int 33h
+    pop dx
+    pop cx
+    pop ax
+endm
+fijar_limites_verticales macro lim_inferior, lim_superior
+    push ax
+    push cx 
+    push dx
+            mov ax,08h
+            mov cx,lim_inferior
+            mov dx,lim_superior
+            int 33h
+    pop dx
+    pop cx
+    pop ax
+endm
+
+
+enmascarar_mouse macro tema
+    push ax
+    push bx
+    push cx
+    push dx
+    push es
+        mov ax, seg tema
+        mov es, ax
+        lea dx, tema
+        mov ax, 09h
+        xor bx, bx
+        xor cx, cx
+        int 33h
+    pop es
+    pop dx
+    pop cx
+    pop bx
+    pop ax
+endm
+
+verificar_area_click macro x_origen,y_origen,base,altura
+local fuera, salir
+
+
+    mov ax, base
+    add ax, x_origen
+    cmp cx, x_origen
+    jl fuera
+
+    cmp cx, ax
+    jg fuera
+
+    mov ax, altura
+    add ax, y_origen
+    cmp dx, y_origen
+    jl fuera
+
+    cmp dx, ax
+    jg fuera
+
+    mov al, 1
+    jmp salir
+
+fuera:
+    mov al,0
+ salir:
+endm
+
+
+
+
+protocolo macro   ;declaramos la macro, le damos el nombre de inicio
+  mov ax,@data   ;Cargamos el segmento de datos.
+  mov ds,ax
+ endm

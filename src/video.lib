@@ -1,0 +1,185 @@
+modo_video macro modo
+	push ax
+	 	mov ah,00
+		mov al,modo
+		int 10h
+	pop ax  
+
+endm
+
+obtener_modo_video macro
+
+		mov ah,0fh
+		int 10h ; deja el modo en video en al
+		
+endm
+
+limpiar_modo_texto macro color
+	push ax
+	push bx
+	push cx
+	push dx
+            mov ax,0600h
+            mov bh,color     
+            mov cx,0000h
+            mov dx,184fh
+            int 10h
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+endm
+
+limpiar_modo_grafico macro
+push si
+	push ax
+	push bx
+	push cx
+	push dx
+	push di
+ 		; Establecer el segmento de memoria de video
+   		mov ax, 0A000h
+    	mov es, ax
+
+		; Configurar el registro de mapa de bits para seleccionar el plano 0
+		mov dx, 3C4h        ; Puerto del registro de secuenciador
+		mov ax, 0F02h       ; Seleccionar todos los planos
+		out dx, ax
+
+    ; Limpiar la memoria de video
+		xor di, di          ; Offset inicial
+		mov cx, 8000h       ; 32,768 palabras (64 KB)
+		;mov ax,0FFFFh
+		xor ax, ax          ; Valor a escribir (color negro)
+
+		rep stosw           ; Llenar la memoria con ceros
+    pop di
+	pop dx
+	pop cx
+	pop bx
+	pop ax  
+	pop si
+endm
+
+dibujar_punto macro color,x ,y
+	push ax
+	push bx
+	push cx       
+	push dx ;Dibuja un punto en la pantalla (En modo gr?fico)
+		mov ah,0ch              ;Func 0C/Int 10h
+		mov al,color    ;color 0-15
+		mov bh,0              ;pagina (0 por default en esta aplicaci?n)
+		mov cx,x            ;Columna
+		mov dx,y          ;Fila
+		int 10h   
+	pop dx
+	pop cx
+	pop bx
+	pop ax 
+        
+endm
+
+dibujar_matriz macro matriz,x ,y,num_columnas,num_renglones,color
+local fila,columna,pintar_negro,incre
+	push ax
+	push bx
+	push cx       
+	push dx 
+	push si
+	push di
+	push bp
+		lea bx,matriz
+		mov si,0
+		mov bp,y
+		mov cx,num_renglones
+			fila:
+				;calculamos la posicion exacta en donde queremos pintar
+				mov ax,320
+				mul bp
+				add ax,x
+				mov di,ax
+				push cx
+				mov cx,num_columnas
+					columna:
+						mov al,[bx][si]
+						cmp al,0
+						je pintar_negro
+						mov al,color
+						mov es:[di],al
+						jmp incre
+						pintar_negro:
+						mov al,0
+					    	mov es:[di],al
+							incre:
+							inc si
+							inc di
+							loop columna
+					pop cx
+					inc bp
+					loop fila
+	pop bp				
+	pop di
+	pop si	
+	pop dx
+	pop cx
+	pop bx
+	pop ax 
+        
+endm
+
+dibujar_matriz_negativo macro matriz,x ,y,num_columnas,num_renglones,color
+local fila,columna,pintar_negro,incre
+	push ax
+	push bx
+	push cx       
+	push dx 
+	push si
+	push di
+	push bp
+		lea bx,matriz
+		mov si,0
+		mov bp,y
+		mov cx,num_renglones
+			fila:
+				;calculamos la posicion exacta en donde queremos pintar
+				mov ax,320
+				mul bp
+				add ax,x
+				mov di,ax
+				push cx
+				mov cx,num_columnas
+					columna:
+						mov al,[bx][si]
+						cmp al,0
+						je pintar_negro
+						mov al,color
+						mov es:[di],al
+						jmp incre
+						pintar_negro:
+						mov al,0
+					    	mov es:[di],al
+							incre:
+							inc si
+							inc di
+							loop columna
+					pop cx
+					dec bp
+					loop fila
+	pop bp				
+	pop di
+	pop si	
+	pop dx
+	pop cx
+	pop bx
+	pop ax 
+        
+endm
+
+
+
+
+
+protocolo macro   ;declaramos la macro, le damos el nombre de inicio
+  mov ax,@data   ;Cargamos el segmento de datos.
+  mov ds,ax
+ endm

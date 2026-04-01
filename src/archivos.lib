@@ -1,0 +1,62 @@
+
+
+crear_archivo macro name_archivo
+push cx dx
+    mov ah, 3Ch
+    mov cx, 0                    ; Archivo normales
+    lea dx, name_archivo
+    int 21h
+pop dx cx
+endm
+
+abrir_archivo macro name_archivo,modo
+push dx
+   mov ah, 3Dh
+    mov al, modo                  ; Modo lectura/escritura
+    lea dx, name_archivo
+    int 21h  
+pop dx
+endm
+
+cerrar_archivo macro
+    mov ah, 3Eh
+    mov bx, handle
+    int 21h
+endm
+
+posicionar_al_final macro handle
+push bx cx dx
+
+ mov ah, 42h
+    mov al, 2                    
+    mov bx, handle
+    xor cx, cx
+    xor dx, dx
+    int 21h
+pop dx cx bx
+endm
+
+escribir_archivo macro cadena,len,handle
+push bx cx dx
+ mov ah, 40h
+    mov bx, handle
+    mov cx,len
+    lea dx, cadena
+    int 21h
+pop dx cx bx
+endm
+
+leer_archivo macro cadena,len,handle
+push bx cx dx
+    mov ah, 3fh
+    mov bx, handle
+    mov cx,len
+    lea dx, cadena
+    int 21h
+pop dx cx bx
+endm
+
+protocolo macro   ;declaramos la macro, le damos el nombre de inicio
+  mov ax,@data   ;Cargamos el segmento de datos.
+  mov ds,ax
+ endm

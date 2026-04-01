@@ -1,0 +1,175 @@
+imprimir_caracter macro c
+	push ax
+	push dx
+	 	
+		mov dl,c
+		mov ah,02
+		int 21h 
+	pop dx
+	pop ax  
+
+endm
+leer_caracter macro
+	 	mov ah,01
+		int 21h ;DEJA EL caracter LEIDO EN AL
+endm
+
+leer_cadena macro cadena
+ push dx
+    push ax
+    lea dx, cadena
+    mov ah, 0Ah
+    int 21h
+    pop ax
+    pop dx
+
+endm
+posicionar_cursor macro r,c
+	push ax
+	push bx
+	push cx
+	push dx
+		mov ah,02
+		mov bh,0
+		mov dh,r;RENGLOB
+		mov dl,c;COLUMNA
+		int 10h
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+endm
+
+despliegar_caracter macro c,color,n            ;DESPLIEAGA CARACTERES A COLOR
+	push ax
+	push bx 
+	push cx
+	push dx
+		mov ah,09
+		mov al,c
+		mov bh,0
+		mov bl,color
+		mov cx,n
+		int 10h
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+endm
+
+
+imprimir_cadena macro cadena
+	push ax
+	push dx
+		mov ah,09
+		lea dx,cadena 
+		int 21h
+	pop dx
+	pop ax
+endm
+
+incrementar_columna_actual macro 
+	push ax
+	push dx
+		mov ah,03h
+		int 10h
+		inc dl
+		mov ah,02h
+		int 10h
+	pop ax
+	pop dx
+endm
+
+buscar_byte macro array , len , x  ;busca un elemento  y devuelve en el valor en dl   dl=0 no se encontro el elemento , dl=1 se encontro
+	LOCAL buscar,return,salir
+	push si
+	push ax
+	push cx
+	mov si,offset array
+	mov cx,len
+		buscar:
+			mov al,[si]
+			inc si
+			cmp al,x ;dl guarda el caracter a buscar
+			je return
+			loop buscar
+			mov dl,0
+			jmp salir
+		return :
+			mov	dl,1
+	salir:
+	pop cx
+	pop ax
+	pop si
+
+endm
+
+convertir_a_mayuscula macro letra
+	mov al,letra
+	cmp al,'a'
+	jl esMayuscula
+	cmp al,'z'
+	jg esMayuscula
+	sub al,20h
+
+	esMayuscula:
+endm 
+
+
+
+obtener_pulsacion macro 
+MOV AH,10H      ; interrupcion 16h servicio 10h para obtener las pulsaciones del teclado es decir saber si una tecla fue presionada
+INT 16H
+endm 
+
+convertir_ascii macro len
+local convertir
+push cx
+mov cx,len
+convertir:
+    OR BYTE PTR [BX], 30h  ; Convertir BCD a ASCII.
+    DEC BX
+    LOOP convertir
+pop cx
+endm
+
+copiar_cadena_con macro src
+    LOCAL copiar_loop, fin
+    push si
+    mov si, offset src
+copiar_loop:
+    mov al, [si]
+    cmp al, '$'     ; Detenerse al encontrar '$'
+    je fin
+    stosb
+    inc si
+    jmp copiar_loop
+fin:
+    pop si
+endm
+
+copiar_buffer macro buf
+    LOCAL copiar_loop, copiar_fin,salir
+    push si
+    lea si, buf+2   ; Saltar los primeros 2 bytes 
+    mov cl, [buf+1] ; Obtener longitud real
+    xor ch, ch
+    jcxz copiar_fin       ; Saltar si longitud es cero
+copiar_loop:
+    mov al, [si]
+    stosb
+    inc si
+    loop copiar_loop
+    jmp salir
+copiar_fin:
+mov cl,[buf]
+ mov al, '?'
+    rep stosb
+salir:   
+    pop si
+endm
+
+protocolo macro   ;declaramos la macro, le damos el nombre de inicio
+  mov ax,@data   ;Cargamos el segmento de datos.
+  mov ds,ax
+ endm
