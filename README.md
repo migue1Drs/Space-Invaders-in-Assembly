@@ -31,7 +31,10 @@ Unlike v1.0, which suffered from screen flickering due to direct VRAM access, v2
 ### 3. Integrated Peripheral Support
 * **Mouse Interfacing:** The main menu utilizes `int 33h` for real-time cursor tracking and click detection.
 * **Coordinate Normalization:** Since the mouse driver operates on a 640-unit horizontal scale, the engine applies bitwise shifts (`shr cx, 1`) to map coordinates correctly to the 320-pixel Mode 13h grid.
-
+### 4. Custom Sprite-based Font Engine
+To maintain visual consistency and bypass the limitations of standard BIOS fonts, v2.0 implements a **custom-made digit rendering system**:
+* **Matrix Typography:** Digits 0-9 are stored as $3 \times 5$ or $5 \times 7$ bit-matrices within the `DATASG`.
+* **Procedural Drawing:** A specialized procedure iterates through these matrices, plotting pixels directly onto the back-buffer, allowing for seamless integration with the game's art style and real-time scaling.
 ---
 
 ## Visual Comparison: Rendering Evolution
