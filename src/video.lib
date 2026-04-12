@@ -8,7 +8,6 @@ modo_video macro modo
 endm
 
 obtener_modo_video macro
-
 		mov ah,0fh
 		int 10h ; deja el modo en video en al
 		
@@ -60,6 +59,28 @@ push si
 	pop ax  
 	pop si
 endm
+limpiar_buffer macro
+    push ax
+    push cx
+    push di
+    push es
+
+    mov ax, SEG BUFFSEG
+    mov es, ax
+    xor di, di          ; DI = 0
+
+    mov cx, 32000       ; 32,000 words = 64,000 bytes
+    
+    xor ax, ax   
+    ; 5. Llenado ultra rápido
+    cld                 
+    rep stosw           
+
+    pop es
+    pop di
+    pop cx
+    pop ax
+endm
 
 dibujar_punto macro color,x ,y
 	push ax
@@ -79,7 +100,7 @@ dibujar_punto macro color,x ,y
         
 endm
 
-dibujar_matriz macro matriz,x ,y,num_columnas,num_renglones,color
+dibujar_matriz macro  matriz,x ,y,num_columnas,num_renglones,color
 local fila,columna,pintar_negro,incre
 	push ax
 	push bx
@@ -88,8 +109,11 @@ local fila,columna,pintar_negro,incre
 	push si
 	push di
 	push bp
+	push es
+		mov ax,SEG BUFFSEG
+		mov es,ax
 		lea bx,matriz
-		mov si,0
+		xor si, si
 		mov bp,y
 		mov cx,num_renglones
 			fila:
@@ -98,6 +122,7 @@ local fila,columna,pintar_negro,incre
 				mul bp
 				add ax,x
 				mov di,ax
+				
 				push cx
 				mov cx,num_columnas
 					columna:
@@ -117,6 +142,7 @@ local fila,columna,pintar_negro,incre
 					pop cx
 					inc bp
 					loop fila
+	pop es
 	pop bp				
 	pop di
 	pop si	
@@ -136,8 +162,11 @@ local fila,columna,pintar_negro,incre
 	push si
 	push di
 	push bp
+	push es 
+		mov ax,SEG BUFFSEG
+		mov es,ax
 		lea bx,matriz
-		mov si,0
+		xor si, si
 		mov bp,y
 		mov cx,num_renglones
 			fila:
@@ -146,6 +175,7 @@ local fila,columna,pintar_negro,incre
 				mul bp
 				add ax,x
 				mov di,ax
+				
 				push cx
 				mov cx,num_columnas
 					columna:
@@ -165,6 +195,7 @@ local fila,columna,pintar_negro,incre
 					pop cx
 					dec bp
 					loop fila
+	pop es
 	pop bp				
 	pop di
 	pop si	
@@ -173,6 +204,94 @@ local fila,columna,pintar_negro,incre
 	pop bx
 	pop ax 
         
+endm
+
+M_UpadteShiel macro shot_x, shot_y
+local shield_one, shield_two ,shield_three, shield_four, shield_five, position_exact, loop_draw_impacter, update_position_shiel, fin_romper
+push ax
+push bx
+push cx       
+push dx 
+push si
+push di
+
+    mov ax,shot_y
+    sub ax,shield_y
+    mov bx,17
+    mul bx
+    mov position_shield,ax
+
+    mov cx,shot_x
+    
+    cmp num_col_shield, 0
+    je shield_one
+    cmp num_col_shield, 1
+    je shield_two
+    cmp num_col_shield, 2
+    je shield_three
+    cmp num_col_shield, 3
+    je shield_four
+    cmp num_col_shield, 4
+    je shield_five
+
+shield_one:
+    sub cx,shield1_x
+    jmp position_exact
+shield_two:
+    sub cx,shield2_x
+    jmp position_exact
+shield_three:
+    sub cx,shield3_x
+    jmp position_exact
+shield_four:
+    sub cx,shield4_x
+    jmp position_exact
+shield_five:   
+    sub cx,shield5_x
+
+ 
+position_exact: 
+    add position_shield,cx 
+    sub position_shield,34
+    mov cx,5
+loop_draw_impacter: 
+    mov si,position_shield
+    cmp si, 0
+    jl update_position_shiel
+    cmp si, 204            ; Ajustar seg?n el tama?o de tu matriz DB
+    jg update_position_shiel
+    mov ax,204
+    mul num_col_shield
+    add si,ax
+    lea bx, shields
+    mov dl,0
+    mov [bx][si],dl
+update_position_shiel:
+    add position_shield,17    
+    loop loop_draw_impacter
+fin_romper:
+				
+	pop di
+	pop si	
+	pop dx
+	pop cx
+	pop bx
+	pop ax 
+endm
+
+M_CalculateColumnShield macro shot_x
+push bx 
+push ax
+push dx 
+    mov ax,shot_x
+    sub ax,shield1_x
+    xor dx,dx
+    mov bx,40
+    div bx 
+    mov num_col_shield,ax
+pop dx
+pop ax
+pop bx  
 endm
 
 
