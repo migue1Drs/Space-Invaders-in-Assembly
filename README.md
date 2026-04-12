@@ -93,4 +93,4 @@ space.exe
 ---
 
 > **Developer Note:** This project serves as a deep dive into low-level systems architecture, demonstrating that even with the constraints of 16-bit real mode, high-performance interactive software is achievable through optimized memory management.
-```
+
